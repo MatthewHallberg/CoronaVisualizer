@@ -6,7 +6,9 @@ using System.Collections;
 public class MapController : Singleton<MapController> {
 
     public readonly float MAX_SCALE = 1f;
-    public readonly float MIN_SCALE = .4f;
+    public readonly float MIN_SCALE = .3f;
+    public float MAX_DIST = .35f;
+    public readonly float MIN_DIST = 0f;
 
     [SerializeField]
     GameObject StatePrefab;
@@ -16,6 +18,7 @@ public class MapController : Singleton<MapController> {
     };
 
     SelectedState currState;
+    List<StateBehavior> currStates = new List<StateBehavior>();
     int currTotal;
 
     public void ChangeState(SelectedState desiredState) {
@@ -28,9 +31,10 @@ public class MapController : Singleton<MapController> {
 
     void DestroyAllInfo() {
         currTotal = 0;
-        foreach (StateBehavior state in FindObjectsOfType<StateBehavior>()) {
+        foreach (StateBehavior state in currStates) {
             state.DestroyElement();
         }
+        currStates.Clear();
     }
 
     void OnDataRecieved(string data) {
@@ -80,7 +84,13 @@ public class MapController : Singleton<MapController> {
 
         //initialize gameobject behavior
         StateBehavior stateBehavior = StateGO.GetComponent<StateBehavior>();
+        currStates.Add(stateBehavior);
         stateBehavior.Init(stateData, currState);
+
+        //change color of state
+        StateTransform stateTransform = parent.GetComponent<StateTransform>();
+        float percentOfTotal = (float)stateData.selectedNum / (float)currTotal;
+        stateTransform.SetColor(percentOfTotal);
     }
 
     List<StateData> ParseData(string data) {
@@ -108,6 +118,7 @@ public class MapController : Singleton<MapController> {
             //keep track of desired total, some values are empty
             if (int.TryParse(lineInfo[(int)currState + 1], out int num)){
                 currTotal += num;
+                stateData.selectedNum = num;
             }
 
             States.Add(stateData);

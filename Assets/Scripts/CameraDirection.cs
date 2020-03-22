@@ -18,8 +18,14 @@ public class CameraDirection : MonoBehaviour {
         if (go.transform.childCount > 0) {
             StateBehavior stateBehavior = go.transform.GetChild(0).GetComponent<StateBehavior>();
             if (stateBehavior != null) {
-                stateBehavior.GotCollision();
+                SendCollisions(stateBehavior);
             }
+        }
+    }
+
+    void SendCollisions(StateBehavior collision) {
+        foreach (StateBehavior state in FindObjectsOfType<StateBehavior>()) {
+            state.GotCollision(collision.transform);
         }
     }
 }

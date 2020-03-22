@@ -99,7 +99,7 @@ Material:
     - _ReceiveShadows: 0
     - _SampleGI: 0
     - _Shininess: 0
-    - _Smoothness: 0.014
+    - _Smoothness: 0
     - _SmoothnessSource: 0
     - _SmoothnessTextureChannel: 0
     - _SpecSource: 0
@@ -112,5 +112,5 @@ Material:
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 0.09433961, g: 0.09433961, b: 0.09433961, a: 1}
-    - _EmissionColor: {r: 2, g: 2, b: 2, a: 1}
+    - _EmissionColor: {r: 4.867144, g: 4.867144, b: 4.867144, a: 1}
     - _SpecColor: {r: 0, g: 0, b: 0, a: 0.5}
