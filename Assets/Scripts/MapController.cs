@@ -2,13 +2,31 @@
 using UnityEngine;
 using System.Linq;
 
-public class MapController : MonoBehaviour {
+public class MapController : Singleton<MapController> {
 
     [SerializeField]
     GameObject StatePrefab;
 
-    void Start() {
-        API.Instance.GetVirusData(OnDataRecieved);
+    public enum SelectedState {
+        TESTED, POSITIVE, DEATHS
+    };
+
+    SelectedState currState;
+    int currTotal;
+
+    public void ChangeState(SelectedState desiredState) {
+        if (currState != desiredState) {
+            currState = desiredState;
+            DestroyAllInfo();
+            API.Instance.GetVirusData(OnDataRecieved);
+        }
+    }
+
+    void DestroyAllInfo() {
+        currTotal = 0;
+        foreach (StateBehavior state in FindObjectsOfType<StateBehavior>()) {
+            Destroy(state.gameObject);
+        }
     }
 
     void OnDataRecieved(string data) {
@@ -18,6 +36,25 @@ public class MapController : MonoBehaviour {
         foreach(StateData state in States) {
             LoadState(state);
         }
+        //update total
+        UpdateTotal();
+    }
+
+    void UpdateTotal() {
+        string totalText = "Total ";
+        switch (currState) {
+        case SelectedState.TESTED:
+            totalText += "tested ";
+            break;
+        case SelectedState.POSITIVE:
+            totalText += "positives ";
+            break;
+        default:
+            totalText += "deaths  ";
+            break;
+        }
+        totalText += currTotal;
+        UIController.Instance.SetTotalText(totalText);
     }
 
     void LoadState(StateData stateData) {
@@ -33,12 +70,12 @@ public class MapController : MonoBehaviour {
 
         //initialize gameobject behavior
         StateBehavior stateBehavior = StateGO.GetComponent<StateBehavior>();
-        stateBehavior.Init(stateData);
+        stateBehavior.Init(stateData, currState);
     }
 
     List<StateData> ParseData(string data) {
         List<string> dataLines = data.Split('\n').ToList();
-        print("FORMAT: " + dataLines[0]);
+        //print("FORMAT: " + dataLines[0]);
         //removed first and last line
         dataLines.RemoveAt(0);
         dataLines.RemoveAt(dataLines.Count - 1);
@@ -48,21 +85,21 @@ public class MapController : MonoBehaviour {
 
         //parse each line
         foreach (string line in dataLines) {
-            print(line);
-            //each line does not always contain data so create fake one
-            string[] stateDataArray = new string[4];
+            //print(line);
             string[] lineInfo = line.Split(',');
-            //load array that is our desired size
-            for (int i = 0; i < lineInfo.Length; i++) {
-                stateDataArray[i] = lineInfo[i];
-            }
             //create state Data object from array values
             StateData stateData = new StateData {
-                name = stateDataArray[0],
-                tested = stateDataArray[1],
-                positive = stateDataArray[2],
-                deaths = stateDataArray[3]
+                name = lineInfo[0],
+                tested = lineInfo[1],
+                positive = lineInfo[2],
+                deaths = lineInfo[3]
             };
+
+            //keep track of desired total, some values are empty
+            if (int.TryParse(lineInfo[(int)currState + 1], out int num)){
+                currTotal += num;
+            }
+
             States.Add(stateData);
         }
         return States;

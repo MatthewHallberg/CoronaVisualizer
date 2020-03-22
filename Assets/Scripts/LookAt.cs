@@ -3,7 +3,7 @@
 public class LookAt : MonoBehaviour {
 
     Transform cam;
-    Vector3 camAngle;
+    Vector3 targetAngle = Vector3.zero;
 
     void Start() {
         cam = Camera.main.transform;
@@ -11,8 +11,8 @@ public class LookAt : MonoBehaviour {
 
     void Update() {
         transform.LookAt(cam);
-        camAngle = transform.localEulerAngles;
-        camAngle.y = 0;
-        transform.localEulerAngles = camAngle;
+        targetAngle = transform.localEulerAngles;
+        targetAngle.z = targetAngle.y;
+        transform.localEulerAngles = targetAngle;
     }
 }
