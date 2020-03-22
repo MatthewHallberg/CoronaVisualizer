@@ -1,8 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
 
 public class MapController : Singleton<MapController> {
+
+    public readonly float MAX_SCALE = 1f;
+    public readonly float MIN_SCALE = .4f;
 
     [SerializeField]
     GameObject StatePrefab;
@@ -25,16 +29,22 @@ public class MapController : Singleton<MapController> {
     void DestroyAllInfo() {
         currTotal = 0;
         foreach (StateBehavior state in FindObjectsOfType<StateBehavior>()) {
-            Destroy(state.gameObject);
+            state.DestroyElement();
         }
     }
 
     void OnDataRecieved(string data) {
+        StartCoroutine(LoadStateRoutine(data));
+    }
+
+    IEnumerator LoadStateRoutine(string data) {
         //get list of states
         List<StateData> States = ParseData(data);
         //load prefab
-        foreach(StateData state in States) {
+        foreach (StateData state in States) {
             LoadState(state);
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
         }
         //update total
         UpdateTotal();
