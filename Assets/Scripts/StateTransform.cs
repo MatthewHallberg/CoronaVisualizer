@@ -3,28 +3,22 @@
 public class StateTransform : MonoBehaviour {
 
     const float MOVE_SPEED = 7f;
-    const float COL_SPEED = 5f;
 
     Vector3 startPos;
     Vector3 selectedPos;
     Vector3 desiredPos;
 
     Renderer rend;
-    Color desiredColor;
-    Color currColor;
 
     void Start() {
         startPos = transform.localPosition;
         selectedPos = startPos + new Vector3(0, 0, .08f);
         desiredPos = startPos;
         rend = GetComponent<Renderer>();
-        currColor = Color.white;
     }
 
     void Update() {
         transform.localPosition = Vector3.Lerp(transform.localPosition, desiredPos, Time.deltaTime * MOVE_SPEED);
-        //currColor = Color.Lerp(currColor, desiredColor, Time.deltaTime * COL_SPEED);
-        //rend.material.SetColor("_BaseColor", currColor);
     }
 
     public void SetSelected(bool selected) {
@@ -36,6 +30,7 @@ public class StateTransform : MonoBehaviour {
         percentValue *= 2;
         percentValue = Mathf.Clamp(percentValue, 0, 1f);
         //set color
+        Color desiredColor;
         desiredColor.r = percentValue;
         desiredColor.g = 1f - percentValue;
         desiredColor.b = 1f - percentValue;

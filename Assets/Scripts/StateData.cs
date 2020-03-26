@@ -4,5 +4,4 @@ public class StateData {
     public string tested = "0";
     public string positive = "0";
     public string deaths = "0";
-    public int selectedNum;
 }

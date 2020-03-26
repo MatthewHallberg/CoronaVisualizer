@@ -8,7 +8,11 @@ public class StateBehavior : MonoBehaviour {
     [SerializeField]
     TextMeshPro stateText;
     [SerializeField]
-    TextMeshPro stateNumbers;
+    TextMeshPro tested;
+    [SerializeField]
+    TextMeshPro positive;
+    [SerializeField]
+    TextMeshPro deaths;
 
     Vector3 desiredScale = Vector3.zero;
     float distance;
@@ -56,21 +60,12 @@ public class StateBehavior : MonoBehaviour {
         transform.SetAsLastSibling();
     }
 
-    public void Init(StateData data, MapController.SelectedState desiredState) {
+    public void Init(StateData data) {
         stateText.text = data.name;
-        stateNumbers.text = SetNumbers(data, desiredState);
+        tested.text = data.tested;
+        positive.text = data.positive;
+        deaths.text = data.deaths;
         transform.localScale = Vector3.zero;
         desiredScale = Vector3.one * MapController.Instance.MIN_SCALE;
-    }
-
-    string SetNumbers(StateData data, MapController.SelectedState desiredState) {
-        switch (desiredState) {
-        case MapController.SelectedState.TESTED:
-            return data.tested;
-        case MapController.SelectedState.POSITIVE:
-            return data.positive;
-        default:
-            return data.deaths;
-        }
     }
 }

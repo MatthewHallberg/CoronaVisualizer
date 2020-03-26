@@ -2,35 +2,41 @@
 using UnityEngine;
 using System.Linq;
 using System.Collections;
+using TMPro;
+using System;
 
 public class MapController : Singleton<MapController> {
 
-    public readonly float MAX_SCALE = 1f;
-    public readonly float MIN_SCALE = .3f;
-    public float MAX_DIST = .35f;
-    public readonly float MIN_DIST = 0f;
+    public float MAX_SCALE = 1f;
+    public float MIN_SCALE = .3f;
+    public float MAX_DIST = .1f;
+    public float MIN_DIST = 0f;
+
+    [SerializeField]
+    TextMeshPro txtDeathTotal;
+    [SerializeField]
+    TextMeshPro txtPositiveTotal;
+    [SerializeField]
+    TextMeshPro txtTestedTotal;
 
     [SerializeField]
     GameObject StatePrefab;
 
-    public enum SelectedState {
-        TESTED, POSITIVE, DEATHS
-    };
-
-    SelectedState currState;
     List<StateBehavior> currStates = new List<StateBehavior>();
-    int currTotal;
+    int deathTotal;
+    int testedTotal;
+    int positiveTotal;
 
-    public void ChangeState(SelectedState desiredState) {
-        if (currState != desiredState) {
-            currState = desiredState;
-            DestroyAllInfo();
-            API.Instance.GetVirusData(OnDataRecieved);
-        }
+    void Start() {
+        UpdateInfo();
+    }
+
+    void UpdateInfo() {
+        DestroyAllInfo();
+        API.Instance.GetVirusData(OnDataRecieved);
     }
 
     void DestroyAllInfo() {
-        currTotal = 0;
         foreach (StateBehavior state in currStates) {
             state.DestroyElement();
         }
@@ -55,20 +61,13 @@ public class MapController : Singleton<MapController> {
     }
 
     void UpdateTotal() {
-        string totalText = "Total ";
-        switch (currState) {
-        case SelectedState.TESTED:
-            totalText += "tested ";
-            break;
-        case SelectedState.POSITIVE:
-            totalText += "positives ";
-            break;
-        default:
-            totalText += "deaths  ";
-            break;
-        }
-        totalText += currTotal;
-        UIController.Instance.SetTotalText(totalText);
+        txtDeathTotal.text = deathTotal.ToString();
+        txtPositiveTotal.text = positiveTotal.ToString();
+        txtTestedTotal.text = testedTotal.ToString();
+
+        deathTotal = 0;
+        testedTotal = 0;
+        positiveTotal = 0;
     }
 
     void LoadState(StateData stateData) {
@@ -80,16 +79,17 @@ public class MapController : Singleton<MapController> {
         }
 
         //instiate prefab as child
-        GameObject StateGO = Instantiate(StatePrefab,parent);
+        GameObject StateGO = Instantiate(StatePrefab, parent);
 
         //initialize gameobject behavior
         StateBehavior stateBehavior = StateGO.GetComponent<StateBehavior>();
         currStates.Add(stateBehavior);
-        stateBehavior.Init(stateData, currState);
+        stateBehavior.Init(stateData);
 
         //change color of state
         StateTransform stateTransform = parent.GetComponent<StateTransform>();
-        float percentOfTotal = (float)stateData.selectedNum / (float)currTotal;
+        float.TryParse(stateData.positive, out float positiveCases);
+        float percentOfTotal = positiveCases / (float)positiveTotal;
         stateTransform.SetColor(percentOfTotal);
     }
 
@@ -110,15 +110,22 @@ public class MapController : Singleton<MapController> {
             //create state Data object from array values
             StateData stateData = new StateData {
                 name = lineInfo[0],
-                tested = lineInfo[1],
-                positive = lineInfo[2],
-                deaths = lineInfo[3]
+                tested = string.IsNullOrEmpty(lineInfo[1]) ? "0" : lineInfo[1],
+                positive = string.IsNullOrEmpty(lineInfo[2]) ? "0" : lineInfo[2],
+                deaths = string.IsNullOrEmpty(lineInfo[3]) ? "0" : lineInfo[3]
             };
 
             //keep track of desired total, some values are empty
-            if (int.TryParse(lineInfo[(int)currState + 1], out int num)){
-                currTotal += num;
-                stateData.selectedNum = num;
+            if (int.TryParse(stateData.tested, out int tested)) {
+                testedTotal += tested;
+            }
+
+            if (int.TryParse(stateData.deaths, out int deaths)) {
+                deathTotal += deaths;
+            }
+
+            if (int.TryParse(stateData.positive, out int positive)) {
+                positiveTotal += positive;
             }
 
             States.Add(stateData);
