@@ -3,14 +3,11 @@ using UnityEngine;
 using System.Linq;
 using System.Collections;
 using TMPro;
-using System;
 
 public class MapController : Singleton<MapController> {
 
     public float MAX_SCALE = 1f;
     public float MIN_SCALE = .3f;
-    public float MAX_DIST = .1f;
-    public float MIN_DIST = 0f;
 
     [SerializeField]
     TextMeshPro txtDeathTotal;

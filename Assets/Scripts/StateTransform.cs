@@ -32,8 +32,8 @@ public class StateTransform : MonoBehaviour {
         //set color
         Color desiredColor;
         desiredColor.r = percentValue;
-        desiredColor.g = 1f - percentValue;
-        desiredColor.b = 1f - percentValue;
+        desiredColor.g = .13f;
+        desiredColor.b = .25f;
         desiredColor.a = 1f;
         rend.material.SetColor("_BaseColor", desiredColor);
     }

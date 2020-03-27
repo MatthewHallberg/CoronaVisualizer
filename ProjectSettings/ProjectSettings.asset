@@ -163,7 +163,7 @@ PlayerSettings:
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
-    Android: com.matt.arftest1
+    Android: com.matt.graphTest1
     iPhone: com.matt.corona
   buildNumber: {}
   AndroidBundleVersionCode: 1
