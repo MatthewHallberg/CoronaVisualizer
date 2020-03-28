@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System.Collections;
 using TMPro;
 
 public class MapController : Singleton<MapController> {
 
-    public float MAX_SCALE = 1f;
-    public float MIN_SCALE = .3f;
+    public readonly float MAX_SCALE = 0.15f;
+    public readonly float MIN_SCALE = .02f;
 
     [SerializeField]
     TextMeshPro txtDeathTotal;
@@ -40,17 +39,16 @@ public class MapController : Singleton<MapController> {
         currStates.Clear();
     }
 
-    void OnDataRecieved(string data) {
-        StartCoroutine(LoadStateRoutine(data));
+    void OnDataRecieved(List<StateData> states) {
+        StartCoroutine(LoadStateRoutine(states));
     }
 
-    IEnumerator LoadStateRoutine(string data) {
-        //get list of states
-        List<StateData> States = ParseData(data);
+    IEnumerator LoadStateRoutine(List<StateData> states) {
+        //update totals for main UI element
+        UpdateTotals(states);
         //load prefab
-        foreach (StateData state in States) {
+        foreach (StateData state in states) {
             LoadState(state);
-            yield return new WaitForEndOfFrame();
             yield return new WaitForEndOfFrame();
         }
         //update total
@@ -90,44 +88,21 @@ public class MapController : Singleton<MapController> {
         stateTransform.SetColor(percentOfTotal);
     }
 
-    List<StateData> ParseData(string data) {
-        List<string> dataLines = data.Split('\n').ToList();
-        //print("FORMAT: " + dataLines[0]);
-        //removed first and last line
-        dataLines.RemoveAt(0);
-        dataLines.RemoveAt(dataLines.Count - 1);
-
-        //create list to return
-        List<StateData> States = new List<StateData>();
-
-        //parse each line
-        foreach (string line in dataLines) {
-            //print(line);
-            string[] lineInfo = line.Split(',');
-            //create state Data object from array values
-            StateData stateData = new StateData {
-                name = lineInfo[0],
-                tested = string.IsNullOrEmpty(lineInfo[1]) ? "0" : lineInfo[1],
-                positive = string.IsNullOrEmpty(lineInfo[2]) ? "0" : lineInfo[2],
-                deaths = string.IsNullOrEmpty(lineInfo[3]) ? "0" : lineInfo[3]
-            };
-
+    void UpdateTotals(List<StateData> states) {
+        foreach (StateData state in states) {
             //keep track of desired total, some values are empty
-            if (int.TryParse(stateData.tested, out int tested)) {
+            if (int.TryParse(state.tested, out int tested)) {
                 testedTotal += tested;
             }
 
-            if (int.TryParse(stateData.deaths, out int deaths)) {
+            if (int.TryParse(state.deaths, out int deaths)) {
                 deathTotal += deaths;
             }
 
-            if (int.TryParse(stateData.positive, out int positive)) {
+            if (int.TryParse(state.positive, out int positive)) {
                 positiveTotal += positive;
             }
-
-            States.Add(stateData);
         }
-        return States;
     }
 }
 
