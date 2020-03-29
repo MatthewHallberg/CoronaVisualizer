@@ -4,7 +4,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 
-public class GraphController : MonoBehaviour {
+public class GraphController : Animate, iController {
 
     public float WaitTime;
 
@@ -19,10 +19,21 @@ public class GraphController : MonoBehaviour {
     BarBehavior testedBar;
 
     void Start() {
+        GetData();
+    }
+
+    public void GetData() {
+        Reset();
         API.Instance.GetTimeData(OnDataRecieved);
     }
 
+    void Reset() {
+        MakeSmall();
+
+    }
+
     void OnDataRecieved(List<TimeData> dataList) {
+        MakeBig();
         StartCoroutine(CycleDataRoutine(dataList));
     }
 

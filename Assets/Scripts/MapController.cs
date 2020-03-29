@@ -3,10 +3,10 @@ using UnityEngine;
 using System.Collections;
 using TMPro;
 
-public class MapController : Singleton<MapController> {
+public class MapController : Animate, iController {
 
-    public readonly float MAX_SCALE = 0.15f;
-    public readonly float MIN_SCALE = .02f;
+    public static readonly float MAX_SCALE = 0.15f;
+    public static readonly float MIN_SCALE = .02f;
 
     [SerializeField]
     TextMeshPro txtDeathTotal;
@@ -24,12 +24,18 @@ public class MapController : Singleton<MapController> {
     int positiveTotal;
 
     void Start() {
-        UpdateInfo();
+        GetData();
     }
 
-    void UpdateInfo() {
-        DestroyAllInfo();
+    public void GetData() {
+        Reset();
         API.Instance.GetVirusData(OnDataRecieved);
+    }
+
+    void Reset() {
+        MakeSmall();
+        DestroyAllInfo();
+        ResetStateColors();
     }
 
     void DestroyAllInfo() {
@@ -40,6 +46,7 @@ public class MapController : Singleton<MapController> {
     }
 
     void OnDataRecieved(List<StateData> states) {
+        MakeBig();
         StartCoroutine(LoadStateRoutine(states));
     }
 
@@ -56,9 +63,10 @@ public class MapController : Singleton<MapController> {
     }
 
     void UpdateTotal() {
-        txtDeathTotal.text = deathTotal.ToString();
-        txtPositiveTotal.text = positiveTotal.ToString();
-        txtTestedTotal.text = testedTotal.ToString();
+
+        txtDeathTotal.text = string.Format("{0:#,###0}", deathTotal);
+        txtPositiveTotal.text = string.Format("{0:#,###0}", positiveTotal);
+        txtTestedTotal.text = string.Format("{0:#,###0}", testedTotal);
 
         deathTotal = 0;
         testedTotal = 0;
@@ -86,6 +94,12 @@ public class MapController : Singleton<MapController> {
         float.TryParse(stateData.positive, out float positiveCases);
         float percentOfTotal = positiveCases / (float)positiveTotal;
         stateTransform.SetColor(percentOfTotal);
+    }
+
+    void ResetStateColors() {
+        foreach (StateTransform state in FindObjectsOfType<StateTransform>()) {
+            state.ResetColor();
+        }
     }
 
     void UpdateTotals(List<StateData> states) {

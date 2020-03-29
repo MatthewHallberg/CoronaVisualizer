@@ -9,6 +9,7 @@ public class PlaceContent : MonoBehaviour {
 
     public ARRaycastManager raycastManager;
     public GraphicRaycaster raycaster;
+    public Toggle arToggle;
 
     private void Update() {
 
@@ -17,7 +18,7 @@ public class PlaceContent : MonoBehaviour {
             List<ARRaycastHit> hitPoints = new List<ARRaycastHit>();
             raycastManager.Raycast(Input.mousePosition, hitPoints, TrackableType.Planes);
 
-            if (hitPoints.Count > 0) {
+            if (hitPoints.Count > 0 && arToggle.isOn) {
                 Pose pose = hitPoints[0].pose;
                 transform.rotation = pose.rotation;
                 transform.position = pose.position;

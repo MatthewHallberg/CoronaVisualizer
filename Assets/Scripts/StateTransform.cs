@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class StateTransform : MonoBehaviour {
 
@@ -8,13 +9,10 @@ public class StateTransform : MonoBehaviour {
     Vector3 selectedPos;
     Vector3 desiredPos;
 
-    Renderer rend;
-
     void Start() {
         startPos = transform.localPosition;
         selectedPos = startPos + new Vector3(0, 0, .08f);
         desiredPos = startPos;
-        rend = GetComponent<Renderer>();
     }
 
     void Update() {
@@ -26,6 +24,11 @@ public class StateTransform : MonoBehaviour {
     }
 
     public void SetColor(float percentValue) {
+        StartCoroutine(SetColorRoutine(percentValue));
+    }
+
+    IEnumerator SetColorRoutine(float percentValue) {
+        yield return new WaitForSeconds(1f);
         percentValue = Mathf.Pow(percentValue, 1f / 3f);
         percentValue *= 2;
         percentValue = Mathf.Clamp(percentValue, 0, 1f);
@@ -35,6 +38,17 @@ public class StateTransform : MonoBehaviour {
         desiredColor.g = .13f;
         desiredColor.b = .25f;
         desiredColor.a = 1f;
+        Renderer rend = GetComponent<Renderer>();
+        rend.material.SetColor("_BaseColor", desiredColor);
+    }
+
+    public void ResetColor() {
+        Color desiredColor;
+        desiredColor.r = 0f;
+        desiredColor.g = .13f;
+        desiredColor.b = .25f;
+        desiredColor.a = 1f;
+        Renderer rend = GetComponent<Renderer>();
         rend.material.SetColor("_BaseColor", desiredColor);
     }
 }

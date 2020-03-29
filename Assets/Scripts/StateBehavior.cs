@@ -1,4 +1,5 @@
-﻿using TMPro;
+﻿using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class StateBehavior : MonoBehaviour {
@@ -37,8 +38,8 @@ public class StateBehavior : MonoBehaviour {
 
         bool selected = state == transform;
 
-        Vector3 LargeScale = Vector3.one * MapController.Instance.MAX_SCALE;
-        Vector3 SmallScale = Vector3.one * MapController.Instance.MIN_SCALE;
+        Vector3 LargeScale = Vector3.one * MapController.MAX_SCALE;
+        Vector3 SmallScale = Vector3.one * MapController.MIN_SCALE;
 
         desiredScale = selected ? LargeScale : SmallScale;
 
@@ -58,6 +59,11 @@ public class StateBehavior : MonoBehaviour {
         positive.text = data.positive;
         deaths.text = data.deaths;
         transform.localScale = Vector3.zero;
-        desiredScale = Vector3.one * MapController.Instance.MIN_SCALE;
+        StartCoroutine(DelayScaleRoutine());
+    }
+
+    IEnumerator DelayScaleRoutine() {
+        yield return new WaitForSeconds(1f);
+        desiredScale = Vector3.one * MapController.MIN_SCALE;
     }
 }
