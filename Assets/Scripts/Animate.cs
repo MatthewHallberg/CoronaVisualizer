@@ -8,6 +8,7 @@ public class Animate : MonoBehaviour {
     Vector3 desiredScale;
 
     public virtual void Awake() {
+        SetRenderQueue();
         transform.localScale = Vector3.zero;
         MakeSmall();
     }
@@ -31,5 +32,14 @@ public class Animate : MonoBehaviour {
             yield return new WaitForSeconds(.1f);
         }
         desiredScale = Vector3.one;
+    }
+
+    void SetRenderQueue() {
+        foreach (Renderer rend in GetComponentsInChildren<Renderer>()) {
+            Material[] mats = rend.materials;
+            foreach (Material mat in mats) {
+                mat.renderQueue = 3000;
+            }
+        }
     }
 }
