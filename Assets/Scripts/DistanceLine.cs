@@ -1,7 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
 
-[ExecuteInEditMode]
 [RequireComponent(typeof(LineRenderer))]
 public class DistanceLine : MonoBehaviour {
 
@@ -47,5 +46,11 @@ public class DistanceLine : MonoBehaviour {
 
         lineRenderer.SetPosition(0, camPos);
         lineRenderer.SetPosition(1, personPos);
+
+        if (Damage.Instance != null && distanceFeet < 6) {
+            Damage.Instance.TakeDamage();
+        } else {
+            Damage.Instance.StopDamage();
+        }
     }
 }
